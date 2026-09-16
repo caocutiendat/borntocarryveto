@@ -1,0 +1,107 @@
+/* ==========================================================================
+   TOKENS — giữ nguyên bảng màu và font của bản cũ, gom về một chỗ.
+   ========================================================================== */
+:root {
+  --bg: #0A0C10;
+  --surface: #12151B;
+  --surface-2: #1B2029;
+  --line: #262C36;
+  --red: #FF4655;
+  --red-dim: #3A1218;
+  --cyan: #39E6C9;
+  --cyan-dim: #0F2B28;
+  --gold: #C9A227;
+  --text: #ECE8E1;
+  --muted: #7A8290;
+  --muted-2: #4B505A;
+
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Barlow Semi Condensed', Inter, sans-serif;
+
+  --radius: 4px;
+  --gap: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(255, 70, 85, .10), transparent 60%),
+    radial-gradient(1000px 500px at 110% 10%, rgba(57, 230, 201, .08), transparent 60%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .brand__name { font-family: var(--font-display); margin: 0; }
+
+::selection { background: var(--red); color: #fff; }
+
+/* --- Reset cho <button> dùng làm thẻ tương tác ---------------------------- */
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: inherit;
+}
+button[disabled] { cursor: default; }
+
+/* Viền focus nhìn thấy được khi dùng bàn phím — bản cũ không có. */
+:where(button, a, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* --- Skeleton khi tải ảnh ------------------------------------------------- */
+.map-card__frame,
+.map-pick__frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.map-card__frame img,
+.map-pick__frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  animation: fade-in .18s ease;
+}
+.is-loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgba(236, 232, 225, .07) 50%, transparent 80%);
+  background-size: 200% 100%;
+  animation: shimmer 1.1s linear infinite;
+}
+/* Không có ảnh (chế độ fallback): giữ nền màu, tên map vẫn đọc được. */
+.no-image { background: linear-gradient(135deg, var(--surface-2), var(--surface)); }
+
+@keyframes shimmer { to { background-position: -200% 0; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

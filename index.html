@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Born To Carry Veto</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://media.valorant-api.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body data-role="viewer">
+
+<div class="toast" id="toast" role="status"></div>
+<p id="liveRegion" class="sr-only" aria-live="polite"></p>
+
+<div class="wrap">
+  <header class="brandbar">
+    <div class="brand">
+      <img class="btc-logo" src="assets/logo.png" alt="" width="30" height="30">
+      <span class="brand__name">Born To Carry <span>Veto</span></span>
+    </div>
+    <div class="admin-bar">
+      <span class="admin-badge" id="adminBadge">Chế độ xem</span>
+      <button type="button" class="btn-admin" id="adminLoginBtn">Đăng nhập</button>
+      <button type="button" class="btn-admin btn-admin--danger" id="adminLogoutBtn" hidden>Đăng xuất</button>
+    </div>
+  </header>
+
+  <p class="boot-error" id="bootError" hidden>
+    Không khởi động được ứng dụng. Kiểm tra cấu hình Firebase trong <code>js/config.js</code>.
+  </p>
+
+  <nav class="tabbar" role="tablist" aria-label="Khu vực làm việc">
+    <button type="button" class="tabbtn" role="tab" id="tabVeto" aria-controls="panel-veto" aria-selected="true" tabindex="0">Ban / Pick map</button>
+    <button type="button" class="tabbtn" role="tab" id="tabAgent" aria-controls="panel-agent" aria-selected="false" tabindex="-1">Agent draft</button>
+    <button type="button" class="tabbtn" role="tab" id="tabBracket" aria-controls="panel-bracket" aria-selected="false" tabindex="-1">Nhánh đấu</button>
+  </nav>
+
+  <p class="viewer-note" id="viewerNote">Bạn đang xem trực tiếp. Đăng nhập admin để thao tác.</p>
+
+  <!-- ===================== BAN / PICK ===================== -->
+  <section id="panel-veto" role="tabpanel" aria-labelledby="tabVeto">
+
+    <!-- Setup -->
+    <div class="card" data-screen="setup">
+      <h1 class="setup-title">Thiết lập trận đấu</h1>
+      <p class="setup-sub">Nhập tên hai đội, chọn thể thức và pool bản đồ trước khi bắt đầu.</p>
+
+      <div class="field-row">
+        <p class="field field--a">
+          <label for="teamA">Đội A (ban trước)</label>
+          <input type="text" id="teamA" maxlength="24" placeholder="Team Alpha" autocomplete="off">
+        </p>
+        <p class="field field--b">
+          <label for="teamB">Đội B</label>
+          <input type="text" id="teamB" maxlength="24" placeholder="Team Bravo" autocomplete="off">
+        </p>
+      </div>
+
+      <fieldset class="format-choices">
+        <legend>Thể thức</legend>
+        <button type="button" class="chip" data-fmt="bo1" aria-pressed="false">BO1 · 1 map</button>
+        <button type="button" class="chip" data-fmt="bo3" aria-pressed="true">BO3 · 3 map</button>
+        <button type="button" class="chip" data-fmt="bo5" aria-pressed="false">BO5 · 5 map</button>
+      </fieldset>
+
+      <div class="pool-head">
+        <h2>Pool bản đồ</h2>
+        <div class="preset-btns">
+          <button type="button" class="btn-mini" id="presetCurrent">Pool hiện tại</button>
+          <button type="button" class="btn-mini" id="presetAll">Chọn tất cả</button>
+          <button type="button" class="btn-mini" id="presetNone">Bỏ chọn</button>
+        </div>
+      </div>
+      <div class="map-select-grid" id="mapSelectGrid"></div>
+      <p class="count" id="poolCount">0 map đã chọn</p>
+
+      <p class="validation" id="validationMsg" role="alert"></p>
+      <button type="button" class="btn-primary" id="startBtn" disabled>Bắt đầu veto</button>
+    </div>
+
+    <!-- Veto -->
+    <div data-screen="veto" hidden>
+      <div class="vs-bar">
+        <p class="team-tag team-tag--a" id="tagA"><span class="team-tag__name" id="tagAName">Đội A</span></p>
+        <span class="vs-mid">vs</span>
+        <p class="team-tag team-tag--b" id="tagB"><span class="team-tag__name" id="tagBName">Đội B</span></p>
+      </div>
+
+      <p class="turn-banner" id="turnBanner"></p>
+      <div class="side-panel" id="sidePanel" hidden></div>
+
+      <div class="veto-layout">
+        <div class="map-grid" id="mapGrid"></div>
+        <aside class="log-panel">
+          <h2>Nhật ký</h2>
+          <ol class="log-list" id="logList"></ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section id="panel-agent" role="tabpanel" aria-labelledby="tabAgent" hidden>
+    <div class="card"><p>Agent draft — port logic từ bản cũ vào <code>js/modules/agent.js</code>.</p></div>
+  </section>
+
+  <section id="panel-bracket" role="tabpanel" aria-labelledby="tabBracket" hidden>
+    <div class="card"><p>Nhánh đấu — port logic từ bản cũ vào <code>js/modules/bracket.js</code>.</p></div>
+  </section>
+
+  <footer class="site-footer">CLB thể thao điện tử BTC Đại học Xây dựng</footer>
+</div>
+
+<!-- ===================== ĐĂNG NHẬP ===================== -->
+<div class="modal-overlay" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+  <form class="modal-box" id="loginForm">
+    <button type="button" class="modal-close" id="modalCloseBtn" aria-label="Đóng">&times;</button>
+    <h2 id="modalTitle">Đăng nhập admin</h2>
+    <p class="modal-sub">Tài khoản do ban tổ chức cấp.</p>
+    <p class="modal-field">
+      <label for="adminUsername">Tên đăng nhập</label>
+      <input type="text" id="adminUsername" autocomplete="username" spellcheck="false" required>
+    </p>
+    <p class="modal-field">
+      <label for="pwMain">Mật khẩu</label>
+      <input type="password" id="pwMain" autocomplete="current-password" required>
+    </p>
+    <p class="modal-error" id="modalError" role="alert"></p>
+    <button type="submit" class="btn-primary" id="modalSubmitBtn">Đăng nhập</button>
+  </form>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
